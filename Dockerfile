@@ -1,7 +1,8 @@
-
 FROM php:8.4-fpm-bookworm
 
 # Install OS dependencies and PHP extensions
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+# hadolint ignore=DL3008
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git unzip libicu-dev libxml2-dev libzip-dev \
     libpng-dev libjpeg62-turbo-dev libfreetype6-dev \
