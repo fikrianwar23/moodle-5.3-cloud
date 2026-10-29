@@ -1,0 +1,75 @@
+name: Moodle 5.3 CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate repository
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Validate YAML files
+        run: |
+          python3 -m pip install --user yamllint
+          python3 -m venv /tmp/ci-venv
+          /tmp/ci-venv/bin/pip install yamllint
+          /tmp/ci-venv/bin/yamllint -d relaxed .github/workflows/ci.yml
+
+      - name: Lint Dockerfile
+        run: |
+          docker run --rm -i hadolint/hadolint:v2.12.0 \
+            < Dockerfile
+
+      - name: Check for sensitive tracked files
+        shell: bash
+        run: |
+          if git ls-files | grep -E \
+            '(^|/)(\.env$|config\.php$|moodledata/|backups/|.*-secret\.ya?ml$|.*\.sql(\.gz)?$|.*\.pem$|.*\.key$)'; then
+            echo "::error::Potentially sensitive files are tracked by Git."
+            exit 1
+          fi
+
+  build:
+    name: Build Moodle image
+    runs-on: ubuntu-24.04
+    needs: validate
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Build image locally on runner
+        run: |
+          docker build --pull \
+            --tag codomax-moodle:${GITHUB_SHA} \
+            .
+
+      - name: Scan image with Trivy
+        uses: aquasecurity/trivy-action@76071ef0d7ec797419534a183b498b4d6366cf37
+        with:
+          scan-type: image
+          image-ref: codomax-moodle:${{ github.sha }}
+          scanners: vuln
+          severity: CRITICAL,HIGH
+          format: table
+          exit-code: '0'
+
+      - name: Scan repository for secrets and misconfigurations
+        uses: aquasecurity/trivy-action@76071ef0d7ec797419534a183b498b4d6366cf37
+        with:
+          scan-type: fs
+          scan-ref: .
+          scanners: secret,misconfig
+          format: table
+          exit-code: '0'
