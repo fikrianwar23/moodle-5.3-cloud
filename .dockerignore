@@ -5,3 +5,20 @@
 *.key
 backups/
 moodledata/
+
+# Local Moodle configuration and runtime data
+config.php
+config.php.*
+*.sql
+*.sql.gz
+*.dump
+*.bak
+*.bak.*
+*.backup
+
+# Kubernetes credentials and secrets
+kubeconfig
+kubeconfig.*
+*-secret.yaml
+*-secret.yml
+secrets/

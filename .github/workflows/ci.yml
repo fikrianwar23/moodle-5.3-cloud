@@ -21,10 +21,9 @@ jobs:
 
       - name: Validate YAML files
         run: |
-          python3 -m pip install --user yamllint
           python3 -m venv /tmp/ci-venv
           /tmp/ci-venv/bin/pip install yamllint
-          /tmp/ci-venv/bin/yamllint -d relaxed .github/workflows/ci.yml
+          /tmp/ci-venv/bin/yamllint -d relaxed .github/workflows/ci.yml compose.yaml
 
       - name: Lint Dockerfile
         run: |
@@ -35,7 +34,7 @@ jobs:
         shell: bash
         run: |
           if git ls-files | grep -E \
-            '(^|/)(\.env$|config\.php$|moodledata/|backups/|.*-secret\.ya?ml$|.*\.sql(\.gz)?$|.*\.pem$|.*\.key$)'; then
+            '(^|/)(\.env($|\.)|config\.php($|\.)|moodledata(/|$)|backups?(/|$)|secrets?(/|$)|.*-secret\.ya?ml$|.*\.sql(\.gz)?$|.*\.dump$|.*\.pem$|.*\.key$|kubeconfig($|\.))'; then
             echo "::error::Potentially sensitive files are tracked by Git."
             exit 1
           fi
