@@ -55,7 +55,7 @@ jobs:
             .
 
       - name: Scan image with Trivy
-        uses: aquasecurity/trivy-action@76071ef0d7ec797419534a183b498b4d6366cf37
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25
         with:
           scan-type: image
           image-ref: codomax-moodle:${{ github.sha }}
@@ -65,7 +65,7 @@ jobs:
           exit-code: '0'
 
       - name: Scan repository for secrets and misconfigurations
-        uses: aquasecurity/trivy-action@76071ef0d7ec797419534a183b498b4d6366cf37
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25
         with:
           scan-type: fs
           scan-ref: .
