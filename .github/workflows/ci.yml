@@ -34,7 +34,7 @@ jobs:
         shell: bash
         run: |
           if git ls-files | grep -E \
-            '(^|/)(\.env($|\.)|config\.php($|\.)|moodledata(/|$)|backups?(/|$)|secrets?(/|$)|.*-secret\.ya?ml$|.*\.sql(\.gz)?$|.*\.dump$|.*\.pem$|.*\.key$|kubeconfig($|\.))'; then
+            '(^|/)(\.env($|\.(?!example$))|config\.php($|\.)|moodledata(/|$)|backups?(/|$)|secrets?(/|$)|.*-secret\.ya?ml$|.*\.sql(\.gz)?$|.*\.dump$|.*\.pem$|.*\.key$|kubeconfig($|\.))'; then
             echo "::error::Potentially sensitive files are tracked by Git."
             exit 1
           fi
